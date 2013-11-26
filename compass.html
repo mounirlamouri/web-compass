@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Compass</title>
+<meta name="viewport" content="width=device-width, user-scalable=no">
+<style>
+  img {
+    width: 250px;
+    height: 300px;
+    margin: 0 auto;
+    display: block;
+  }
+
+  #debug {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+  }
+</style>
+<script>
+  function getRotationOnScreen(rotation) {
+    // Without the screen orientation as an angle, if the screen is not at the
+    // default orientation, the compass wil not be shown correctly.
+    if ('orientation' in window)
+      rotation -= window.orientation;
+    if (rotation < 0) rotation += 360;
+    if (rotation > 360) rotation -= 360;
+    return rotation;
+  }
+
+  window.addEventListener('deviceorientation', function(e) {
+    // Show debug info.
+    document.getElementById('debug').innerHTML = e.alpha + ' ' + getRotationOnScreen(e.alpha) + ' ' + window.orientation;
+
+    // Rotate the compass. There is not much interop here unfortunately.
+    var style = document.styleSheets[0].cssRules[0].style;
+    if ('webkitTransform' in style)
+      style.webkitTransform = 'rotate('  + getRotationOnScreen(e.alpha) + 'deg)';
+    else if ('MozTransform' in style)
+      style.MozTransform = 'rotate(-'  + getRotationOnScreen(e.alpha) + 'deg)';
+  });
+
+  window.addEventListener('compassneedscalibration', function() {
+    alert('Compass needs calibration!');
+  });
+</script>
+</head>
+<body>
+  <img src='compass.jpg'>
+  <span id='debug'></span>
+</body>
+</html>
